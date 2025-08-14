@@ -159,7 +159,8 @@ app.get('/', async (req, res) => {
     res.status(500).render('error', {
       title: 'Server Error',
       message: 'Unable to load homepage data.',
-      status: 500
+      status: 500,
+      error: error
     });
   }
 });
@@ -205,7 +206,8 @@ app.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
     res.status(500).render('error', {
       title: 'Server Error',
       message: 'Unable to load dashboard data.',
-      status: 500
+      status: 500,
+      error: error
     });
   }
 });
@@ -360,7 +362,8 @@ app.get('/missions', authenticateToken, async (req, res) => {
     res.status(500).render('error', {
       title: 'Server Error',
       message: 'Unable to load missions data.',
-      status: 500
+      status: 500,
+      error: error
     });
   }
 });
@@ -379,7 +382,8 @@ app.get('/drivers', authenticateToken, async (req, res) => {
     res.status(500).render('error', {
       title: 'Server Error',
       message: 'Unable to load drivers data.',
-      status: 500
+      status: 500,
+      error: error
     });
   }
 });
@@ -427,7 +431,8 @@ app.use((req, res) => {
   res.status(404).render('error', {
     title: 'Page Not Found',
     message: 'The page you are looking for does not exist.',
-    status: 404
+    status: 404,
+    error: null
   });
 });
 
@@ -436,7 +441,8 @@ app.use((err, req, res, next) => {
   res.status(500).render('error', {
     title: 'Server Error',
     message: 'Something went wrong on our end.',
-    status: 500
+    status: 500,
+    error: err
   });
 });
 
