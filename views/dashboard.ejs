@@ -1,0 +1,250 @@
+<% layout('layout') -%>
+
+<div class="dashboard-container">
+    <!-- Left Navigation Sidebar -->
+    <nav class="dashboard-sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🚕</div>
+            <span class="logo-text">Smart Taxis</span>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item active">
+                <a href="/dashboard">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-text">Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/booking">
+                    <span class="menu-icon">📅</span>
+                    <span class="menu-text">Bookings</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/drivers">
+                    <span class="menu-icon">👨‍💼</span>
+                    <span class="menu-text">Drivers</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#">
+                    <span class="menu-icon">👥</span>
+                    <span class="menu-text">Users</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#">
+                    <span class="menu-icon">💬</span>
+                    <span class="menu-text">SMS</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#">
+                    <span class="menu-icon">📈</span>
+                    <span class="menu-text">Analytics</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#">
+                    <span class="menu-icon">⚙️</span>
+                    <span class="menu-text">Settings</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="dashboard-main">
+        <!-- Top Bar -->
+        <header class="dashboard-topbar">
+            <div class="topbar-left">
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle">Welcome back! Here's what's happening today.</p>
+            </div>
+            <div class="topbar-right">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search...">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="notification-bell">
+                    <span class="bell-icon">🔔</span>
+                    <span class="notification-dot"></span>
+                </div>
+                <div class="user-profile">
+                    <span class="profile-icon">👤</span>
+                    <span class="username">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- KPI Summary Cards -->
+            <section class="kpi-section">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon booking-icon">📊</div>
+                        <div class="kpi-content">
+                            <div class="kpi-number">247</div>
+                            <div class="kpi-label">Total Bookings</div>
+                            <div class="kpi-change positive">+12.5%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon driver-icon">🚗</div>
+                        <div class="kpi-content">
+                            <div class="kpi-number">42</div>
+                            <div class="kpi-label">Active Drivers</div>
+                            <div class="kpi-change positive">+8.3%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon sms-icon">💬</div>
+                        <div class="kpi-content">
+                            <div class="kpi-number">1,234</div>
+                            <div class="kpi-label">SMS Sent Today</div>
+                            <div class="kpi-change negative">-2.1%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon revenue-icon">💰</div>
+                        <div class="kpi-content">
+                            <div class="kpi-number">$3,847</div>
+                            <div class="kpi-label">Revenue Today</div>
+                            <div class="kpi-change positive">+15.7%</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions-section">
+                <div class="quick-actions-grid">
+                    <button class="action-btn btn-blue">
+                        <span class="action-icon">➕</span>
+                        <span class="action-text">New Booking</span>
+                    </button>
+                    <button class="action-btn btn-green">
+                        <span class="action-icon">👨‍💼</span>
+                        <span class="action-text">Add Driver</span>
+                    </button>
+                    <button class="action-btn btn-purple">
+                        <span class="action-icon">📱</span>
+                        <span class="action-text">Send SMS</span>
+                    </button>
+                    <button class="action-btn btn-orange">
+                        <span class="action-icon">📊</span>
+                        <span class="action-text">View Reports</span>
+                    </button>
+                    <button class="action-btn btn-gray">
+                        <span class="action-icon">📤</span>
+                        <span class="action-text">Export Data</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Recent Bookings Table -->
+                <section class="recent-bookings-section">
+                    <h2 class="section-title">Recent Bookings</h2>
+                    <div class="table-container">
+                        <table class="bookings-table">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Customer</th>
+                                    <th>Driver</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#BK001</td>
+                                    <td>John Smith</td>
+                                    <td>Mike Johnson</td>
+                                    <td><span class="status-pill completed">Completed</span></td>
+                                    <td>$24.50</td>
+                                    <td>2 mins ago</td>
+                                </tr>
+                                <tr>
+                                    <td>#BK002</td>
+                                    <td>Sarah Wilson</td>
+                                    <td>David Brown</td>
+                                    <td><span class="status-pill in-progress">In Progress</span></td>
+                                    <td>$18.75</td>
+                                    <td>5 mins ago</td>
+                                </tr>
+                                <tr>
+                                    <td>#BK003</td>
+                                    <td>Robert Davis</td>
+                                    <td>Lisa Garcia</td>
+                                    <td><span class="status-pill pending">Pending</span></td>
+                                    <td>$32.00</td>
+                                    <td>8 mins ago</td>
+                                </tr>
+                                <tr>
+                                    <td>#BK004</td>
+                                    <td>Emily Chen</td>
+                                    <td>Carlos Rodriguez</td>
+                                    <td><span class="status-pill completed">Completed</span></td>
+                                    <td>$15.25</td>
+                                    <td>12 mins ago</td>
+                                </tr>
+                                <tr>
+                                    <td>#BK005</td>
+                                    <td>Michael Taylor</td>
+                                    <td>-</td>
+                                    <td><span class="status-pill cancelled">Cancelled</span></td>
+                                    <td>$0.00</td>
+                                    <td>15 mins ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- System Status Panel -->
+                <section class="system-status-section">
+                    <h2 class="section-title">System Status</h2>
+                    <div class="status-container">
+                        <div class="status-item">
+                            <span class="service-name">SMS Service</span>
+                            <div class="status-indicator">
+                                <span class="status-icon online">✓</span>
+                                <span class="status-text">Online</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="service-name">Payment Gateway</span>
+                            <div class="status-indicator">
+                                <span class="status-icon online">✓</span>
+                                <span class="status-text">Online</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="service-name">Database</span>
+                            <div class="status-indicator">
+                                <span class="status-icon limited">⚠</span>
+                                <span class="status-text">Limited</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="service-name">Redis Cache</span>
+                            <div class="status-indicator">
+                                <span class="status-icon online">✓</span>
+                                <span class="status-text">Online</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

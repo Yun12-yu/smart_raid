@@ -81,6 +81,12 @@ app.get('/', (req, res) => {
   });
 });
 
+app.get('/dashboard', (req, res) => {
+  res.render('dashboard', { 
+    title: 'Dashboard - Smart Taxis'
+  });
+});
+
 app.get('/book', (req, res) => {
   res.render('booking', { title: 'Book a Taxi' });
 });
