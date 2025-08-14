@@ -257,4 +257,92 @@ jobs:
 
 ---
 
-✅ **This MVP v1.02 includes a complete taxi booking system with admin dashboard and full CI/CD stack**, allowing for continuous development, testing, and deployment of the Smart Taxis platform.
+## 12. Short-Term Targets Specification (v1.03 Roadmap)
+
+### 12.1 PostgreSQL Integration
+
+**Purpose:** Replace in-memory/dummy data with persistent storage for bookings, drivers, and missions.
+
+**Tasks:**
+- Add PostgreSQL database connection using `pg` or `sequelize` ORM
+- Create database schema:
+  - `drivers`: id, name, phone, status, current_location, created_at
+  - `bookings`: id, customer_name, pickup_location, dropoff_location, fare, status, driver_id (FK), created_at
+  - `missions`: id, booking_id (FK), status, start_time, end_time
+- Add database migration scripts (knex or Sequelize CLI)
+- Modify booking and driver assignment logic to read/write from DB
+
+**Environment Variables:**
+```
+DATABASE_URL=postgres://user:password@host:port/dbname
+```
+
+### 12.2 Basic Authentication (JWT)
+
+**Purpose:** Secure access to admin dashboard and API routes.
+
+**Tasks:**
+- Implement user model with roles: admin, driver
+- Use `bcrypt` to hash passwords
+- Create authentication endpoints:
+  - `POST /auth/login` → returns JWT token
+  - `POST /auth/register` → create new admin/driver (restricted)
+- Protect dashboard and API routes using JWT middleware
+
+**Environment Variables:**
+```
+JWT_SECRET=<secure_random_key>
+JWT_EXPIRES_IN=7d
+```
+
+### 12.3 Unit Testing
+
+**Purpose:** Ensure booking and driver assignment logic works reliably.
+
+**Tasks:**
+- Use Jest for backend unit tests
+- Create test cases for:
+  - New booking creation
+  - Fare calculation
+  - Driver assignment
+  - Mission status updates
+- Run tests in CI pipeline before deployment
+
+**Command:**
+```bash
+npm run test
+```
+
+### 12.4 Dummy Historic Data for Analytics
+
+**Purpose:** Populate DB with realistic past data for testing analytics features.
+
+**Tasks:**
+- Create seed scripts to insert:
+  - 100+ past bookings (varying dates, fares, and statuses)
+  - Matching missions and drivers
+  - Ensure realistic distribution (rush hours, weekdays/weekends)
+
+**Implementation:**
+```bash
+npm run seed
+```
+
+### 12.5 Analytics Implementation
+
+**Purpose:** Visualize KPIs and trends based on database data.
+
+**Tasks:**
+- Extend Admin Dashboard with analytics panels:
+  - Bookings per day/week/month
+  - Revenue trends
+  - Driver utilization rates
+  - Completion rates
+- Use a charting library (e.g., Chart.js) inside EJS templates
+- Make analytics update dynamically via API calls to backend
+
+---
+
+✅ **Outcome:** By completing these short-term targets, Smart Taxis will evolve from a demo MVP to a database-backed, secure, and analytics-enabled system with basic test coverage, setting the stage for scaling to real operations.
+
+✅ **This MVP v1.02 includes a complete taxi booking system with admin dashboard and full CI/CD stack**, with a clear roadmap (v1.03) for database integration, authentication, testing, and advanced analytics features.
