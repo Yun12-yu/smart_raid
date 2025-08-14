@@ -422,7 +422,8 @@ app.get('/api/missions/:id', (req, res) => {
 app.use((req, res) => {
   res.status(404).render('error', {
     title: 'Page Not Found',
-    message: 'The page you are looking for does not exist.'
+    message: 'The page you are looking for does not exist.',
+    status: 404
   });
 });
 
@@ -430,7 +431,8 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('error', {
     title: 'Server Error',
-    message: 'Something went wrong on our end.'
+    message: 'Something went wrong on our end.',
+    status: 500
   });
 });
 
