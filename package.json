@@ -7,7 +7,13 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "lint": "eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "db:migrate": "node migrations/migrate.js",
+    "db:seed": "node seeders/seed.js",
+    "db:setup": "npm run db:migrate && npm run db:seed",
+    "db:reset": "npm run db:migrate && npm run db:seed"
   },
   "keywords": [
     "taxi",
@@ -19,10 +25,17 @@
   "author": "Smart Taxis Team",
   "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.2",
+    "chart.js": "^4.5.0",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-ejs-layouts": "^2.5.1",
+    "jest": "^30.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "sequelize": "^6.37.7",
+    "supertest": "^7.1.4",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

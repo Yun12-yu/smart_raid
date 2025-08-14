@@ -3,6 +3,13 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
+require('dotenv').config();
+
+// Import models and database
+const { Driver, Booking, Mission, User, syncDatabase } = require('./models');
+const authRoutes = require('./routes/auth');
+const { authenticateToken, requireAdmin } = require('./middleware/auth');
+const AnalyticsService = require('./services/analytics');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,7 +23,29 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('layout', 'layout');
 
-// Dummy Data
+// Authentication routes
+app.use('/auth', authRoutes);
+
+// Database initialization
+let isDbInitialized = false;
+
+// Initialize database connection
+const initializeDatabase = async () => {
+  try {
+    const dbConnected = await syncDatabase();
+    if (dbConnected) {
+      isDbInitialized = true;
+      console.log('✅ Database connected and synchronized');
+    } else {
+      console.log('📝 Falling back to in-memory data storage');
+    }
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error.message);
+    console.log('📝 Falling back to in-memory data storage');
+  }
+};
+
+// Fallback dummy data (for development without DB)
 let drivers = [
   { id: 1, name: 'John Smith', available: true, location: 'Downtown', rating: 4.8 },
   { id: 2, name: 'Maria Garcia', available: true, location: 'Airport', rating: 4.9 },
@@ -41,8 +70,45 @@ function calculateFare(pickup, destination) {
   };
 }
 
-function findAvailableDriver() {
+async function findAvailableDriver() {
+  if (isDbInitialized) {
+    return await Driver.findOne({
+      where: { status: 'available' }
+    });
+  }
   return drivers.find(driver => driver.available);
+}
+
+async function getDrivers() {
+  if (isDbInitialized) {
+    return await Driver.findAll();
+  }
+  return drivers;
+}
+
+async function getBookings(limit = null) {
+  if (isDbInitialized) {
+    const options = {
+      include: [Driver],
+      order: [['created_at', 'DESC']]
+    };
+    if (limit) options.limit = limit;
+    return await Booking.findAll(options);
+  }
+  return limit ? bookings.slice(-limit).reverse() : bookings;
+}
+
+async function getMissions() {
+  if (isDbInitialized) {
+    return await Mission.findAll({
+      include: [{
+        model: Booking,
+        include: [Driver]
+      }],
+      order: [['created_at', 'DESC']]
+    });
+  }
+  return missions;
 }
 
 function simulateMissionProgress(missionId) {
@@ -76,25 +142,93 @@ function simulateMissionProgress(missionId) {
 }
 
 // Routes
-app.get('/', (req, res) => {
-  res.render('index', { 
-    title: 'Smart Taxis MVP',
-    drivers: drivers.filter(d => d.available),
-    recentBookings: bookings.slice(-5).reverse()
-  });
+app.get('/', async (req, res) => {
+  try {
+    const allDrivers = await getDrivers();
+    const recentBookings = await getBookings(5);
+    
+    res.render('index', { 
+      title: 'Smart Taxis MVP',
+      drivers: isDbInitialized ? 
+        allDrivers.filter(d => d.status === 'available') : 
+        allDrivers.filter(d => d.available),
+      recentBookings
+    });
+  } catch (error) {
+    console.error('Error loading homepage:', error);
+    res.status(500).render('error', {
+      title: 'Server Error',
+      message: 'Unable to load homepage data.'
+    });
+  }
 });
 
-app.get('/dashboard', (req, res) => {
-  res.render('dashboard', { 
-    title: 'Dashboard - Smart Taxis'
-  });
+app.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    let dashboardData = {};
+    
+    if (isDbInitialized) {
+      dashboardData = await AnalyticsService.getDashboardData();
+    } else {
+      // Fallback data for development without database
+      dashboardData = {
+        bookingStats: {
+          totalBookings: bookings.length,
+          completedBookings: bookings.filter(b => b.status === 'completed').length,
+          cancelledBookings: bookings.filter(b => b.status === 'cancelled').length,
+          totalRevenue: bookings.reduce((sum, b) => sum + (b.fare || 0), 0),
+          completionRate: bookings.length > 0 ? Math.round((bookings.filter(b => b.status === 'completed').length / bookings.length) * 100) : 0
+        },
+        dailyTrends: [],
+        driverPerformance: drivers.map(d => ({
+          id: d.id,
+          name: d.name,
+          status: d.available ? 'available' : 'busy',
+          totalBookings: 0,
+          completedBookings: 0,
+          revenue: 0,
+          completionRate: 0
+        })),
+        statusDistribution: [],
+        peakHours: []
+      };
+    }
+    
+    res.render('dashboard', { 
+      title: 'Dashboard - Smart Taxis',
+      user: req.user,
+      analytics: dashboardData
+    });
+  } catch (error) {
+    console.error('Error loading dashboard:', error);
+    res.status(500).render('error', {
+      title: 'Server Error',
+      message: 'Unable to load dashboard data.'
+    });
+  }
+});
+
+// API endpoint for dashboard data
+app.get('/api/analytics', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    if (isDbInitialized) {
+      const data = await AnalyticsService.getDashboardData();
+      res.json(data);
+    } else {
+      res.json({ error: 'Database not initialized' });
+    }
+  } catch (error) {
+    console.error('Error getting analytics data:', error);
+    res.status(500).json({ error: 'Unable to fetch analytics data' });
+  }
 });
 
 app.get('/book', (req, res) => {
   res.render('booking', { title: 'Book a Taxi' });
 });
 
-app.post('/book', (req, res) => {
+app.post('/book', async (req, res) => {
+  try {
   const { pickup, destination, passengerName, passengerPhone } = req.body;
   
   // Validate input
@@ -109,7 +243,7 @@ app.post('/book', (req, res) => {
   const fareInfo = calculateFare(pickup, destination);
   
   // Find available driver
-  const driver = findAvailableDriver();
+  const driver = await findAvailableDriver();
   
   if (!driver) {
     return res.render('booking', {
@@ -118,79 +252,162 @@ app.post('/book', (req, res) => {
     });
   }
 
-  // Create booking
-  const booking = {
-    id: uuidv4(),
-    pickup,
-    destination,
-    passengerName,
-    passengerPhone,
-    fare: fareInfo.fare,
-    distance: fareInfo.distance,
-    status: 'confirmed',
-    createdAt: new Date(),
-    driverId: driver.id,
-    driverName: driver.name
-  };
+  let booking, mission;
 
-  bookings.push(booking);
-  
-  // Mark driver as unavailable
-  driver.available = false;
-  
-  // Create mission
-  const mission = {
-    id: uuidv4(),
-    bookingId: booking.id,
-    driverId: driver.id,
-    driverName: driver.name,
-    pickup,
-    destination,
-    passengerName,
-    status: 'assigned',
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
-  
-  missions.push(mission);
-  
-  console.log(`📱 New booking created: ${booking.id}`);
-  console.log(`🚗 Driver ${driver.name} assigned to mission ${mission.id}`);
-  
-  // Start mission simulation
-  setTimeout(() => {
-    simulateMissionProgress(mission.id);
-  }, 1000);
+  if (isDbInitialized) {
+    // Create booking in database
+    booking = await Booking.create({
+      customer_name: passengerName,
+      pickup_location: pickup,
+      dropoff_location: destination,
+      fare: fareInfo.fare,
+      status: 'assigned',
+      driver_id: driver.id
+    });
+
+    // Update driver status
+    await driver.update({ status: 'busy' });
+
+    // Create mission
+    mission = await Mission.create({
+      booking_id: booking.id,
+      status: 'assigned',
+      start_time: new Date()
+    });
+
+    console.log(`📱 New booking created: ${booking.id}`);
+    console.log(`🚗 Driver ${driver.name} assigned to mission ${mission.id}`);
+  } else {
+    // Fallback to in-memory storage
+    booking = {
+      id: uuidv4(),
+      pickup,
+      destination,
+      passengerName,
+      passengerPhone,
+      fare: fareInfo.fare,
+      distance: fareInfo.distance,
+      status: 'confirmed',
+      createdAt: new Date(),
+      driverId: driver.id,
+      driverName: driver.name
+    };
+
+    bookings.push(booking);
+    driver.available = false;
+
+    mission = {
+      id: uuidv4(),
+      bookingId: booking.id,
+      driverId: driver.id,
+      driverName: driver.name,
+      pickup,
+      destination,
+      passengerName,
+      status: 'assigned',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    missions.push(mission);
+
+    // Start mission simulation for in-memory data
+    setTimeout(() => {
+      simulateMissionProgress(mission.id);
+    }, 1000);
+  }
   
   res.render('booking-success', {
     title: 'Booking Confirmed',
     booking,
     driver
   });
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    res.render('booking', {
+      title: 'Book a Taxi',
+      error: 'Unable to create booking. Please try again.'
+    });
+  }
 });
 
-app.get('/missions', (req, res) => {
-  res.render('missions', {
-    title: 'Active Missions',
-    missions: missions.filter(m => m.status !== 'completed'),
-    completedMissions: missions.filter(m => m.status === 'completed').slice(-10)
-  });
+app.get('/missions', authenticateToken, async (req, res) => {
+  try {
+    const allMissions = await getMissions();
+    
+    if (isDbInitialized) {
+      const activeMissions = allMissions.filter(m => m.status !== 'completed');
+      const completedMissions = allMissions.filter(m => m.status === 'completed').slice(-10);
+      
+      res.render('missions', {
+        title: 'Active Missions',
+        missions: activeMissions,
+        completedMissions,
+        user: req.user
+      });
+    } else {
+      res.render('missions', {
+        title: 'Active Missions',
+        missions: missions.filter(m => m.status !== 'completed'),
+        completedMissions: missions.filter(m => m.status === 'completed').slice(-10),
+        user: req.user
+      });
+    }
+  } catch (error) {
+    console.error('Error loading missions:', error);
+    res.status(500).render('error', {
+      title: 'Server Error',
+      message: 'Unable to load missions data.'
+    });
+  }
 });
 
-app.get('/drivers', (req, res) => {
-  res.render('drivers', {
-    title: 'Driver Status',
-    drivers
-  });
+app.get('/drivers', authenticateToken, async (req, res) => {
+  try {
+    const allDrivers = await getDrivers();
+    
+    res.render('drivers', {
+      title: 'Driver Status',
+      drivers: allDrivers,
+      user: req.user
+    });
+  } catch (error) {
+    console.error('Error loading drivers:', error);
+    res.status(500).render('error', {
+      title: 'Server Error',
+      message: 'Unable to load drivers data.'
+    });
+  }
 });
 
-app.get('/api/status', (req, res) => {
-  res.json({
-    availableDrivers: drivers.filter(d => d.available).length,
-    activeMissions: missions.filter(m => m.status !== 'completed').length,
-    totalBookings: bookings.length,
-    completedMissions: missions.filter(m => m.status === 'completed').length
-  });
+app.get('/api/status', async (req, res) => {
+  try {
+    if (isDbInitialized) {
+      const [availableDrivers, activeMissions, totalBookings, completedMissions] = await Promise.all([
+        Driver.count({ where: { status: 'available' } }),
+        Mission.count({ where: { status: { [require('sequelize').Op.ne]: 'completed' } } }),
+        Booking.count(),
+        Mission.count({ where: { status: 'completed' } })
+      ]);
+      
+      res.json({
+        availableDrivers,
+        activeMissions,
+        totalBookings,
+        completedMissions
+      });
+    } else {
+      res.json({
+        availableDrivers: drivers.filter(d => d.available).length,
+        activeMissions: missions.filter(m => m.status !== 'completed').length,
+        totalBookings: bookings.length,
+        completedMissions: missions.filter(m => m.status === 'completed').length
+      });
+    }
+  } catch (error) {
+    console.error('Error getting status:', error);
+    res.status(500).json({ error: 'Unable to fetch status data' });
+  }
 });
 
 app.get('/api/missions/:id', (req, res) => {
@@ -217,11 +434,35 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Add login page route
+app.get('/login', (req, res) => {
+  res.render('login', { title: 'Login - Smart Taxis' });
+});
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Smart Taxis MVP server running on port ${PORT}`);
   console.log(`📱 Access the app at: http://localhost:${PORT}`);
-  console.log(`👥 Available drivers: ${drivers.filter(d => d.available).length}`);
+  
+  // Initialize database
+  await initializeDatabase();
+  
+  if (isDbInitialized) {
+    const availableDriversCount = await Driver.count({ where: { status: 'available' } });
+    console.log(`👥 Available drivers: ${availableDriversCount}`);
+  } else {
+    console.log(`👥 Available drivers: ${drivers.filter(d => d.available).length}`);
+  }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  if (isDbInitialized) {
+    const { sequelize } = require('./models');
+    await sequelize.close();
+  }
+  process.exit(0);
 });
 
 module.exports = app;

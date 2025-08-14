@@ -1,250 +1,400 @@
-<% layout('layout') -%>
-
-<div class="dashboard-container">
-    <!-- Left Navigation Sidebar -->
-    <nav class="dashboard-sidebar">
-        <div class="sidebar-logo">
-            <div class="logo-icon">🚕</div>
-            <span class="logo-text">Smart Taxis</span>
-        </div>
-        
-        <ul class="sidebar-menu">
-            <li class="menu-item active">
-                <a href="/dashboard">
-                    <span class="menu-icon">📊</span>
-                    <span class="menu-text">Dashboard</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/booking">
-                    <span class="menu-icon">📅</span>
-                    <span class="menu-text">Bookings</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="/drivers">
-                    <span class="menu-icon">👨‍💼</span>
-                    <span class="menu-text">Drivers</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#">
-                    <span class="menu-icon">👥</span>
-                    <span class="menu-text">Users</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#">
-                    <span class="menu-icon">💬</span>
-                    <span class="menu-text">SMS</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#">
-                    <span class="menu-icon">📈</span>
-                    <span class="menu-text">Analytics</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#">
-                    <span class="menu-icon">⚙️</span>
-                    <span class="menu-text">Settings</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- Main Content Area -->
-    <div class="dashboard-main">
-        <!-- Top Bar -->
-        <header class="dashboard-topbar">
-            <div class="topbar-left">
-                <h1 class="page-title">Dashboard</h1>
-                <p class="page-subtitle">Welcome back! Here's what's happening today.</p>
-            </div>
-            <div class="topbar-right">
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search...">
-                    <span class="search-icon">🔍</span>
-                </div>
-                <div class="notification-bell">
-                    <span class="bell-icon">🔔</span>
-                    <span class="notification-dot"></span>
-                </div>
-                <div class="user-profile">
-                    <span class="profile-icon">👤</span>
-                    <span class="username">Admin</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Dashboard Content -->
-        <div class="dashboard-content">
-            <!-- KPI Summary Cards -->
-            <section class="kpi-section">
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon booking-icon">📊</div>
-                        <div class="kpi-content">
-                            <div class="kpi-number">247</div>
-                            <div class="kpi-label">Total Bookings</div>
-                            <div class="kpi-change positive">+12.5%</div>
-                        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+        }
+        .stat-icon {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            margin: 5px 0;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white"><i class="fas fa-taxi"></i> Smart Taxis</h4>
+                        <p class="text-white-50">Admin Dashboard</p>
                     </div>
-                    
-                    <div class="kpi-card">
-                        <div class="kpi-icon driver-icon">🚗</div>
-                        <div class="kpi-content">
-                            <div class="kpi-number">42</div>
-                            <div class="kpi-label">Active Drivers</div>
-                            <div class="kpi-change positive">+8.3%</div>
-                        </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/dashboard">
+                                <i class="fas fa-chart-bar"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/drivers">
+                                <i class="fas fa-users"></i> Drivers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/missions">
+                                <i class="fas fa-tasks"></i> Missions
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                    </ul>
+                    <hr class="text-white-50">
+                    <div class="text-center">
+                        <p class="text-white-50 small">Welcome, <%= user.username %></p>
+                        <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
                     </div>
-                    
-                    <div class="kpi-card">
-                        <div class="kpi-icon sms-icon">💬</div>
-                        <div class="kpi-content">
-                            <div class="kpi-number">1,234</div>
-                            <div class="kpi-label">SMS Sent Today</div>
-                            <div class="kpi-change negative">-2.1%</div>
-                        </div>
-                    </div>
-                    
-                    <div class="kpi-card">
-                        <div class="kpi-icon revenue-icon">💰</div>
-                        <div class="kpi-content">
-                            <div class="kpi-number">$3,847</div>
-                            <div class="kpi-label">Revenue Today</div>
-                            <div class="kpi-change positive">+15.7%</div>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-chart-bar"></i> Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshData()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Quick Actions -->
-            <section class="quick-actions-section">
-                <div class="quick-actions-grid">
-                    <button class="action-btn btn-blue">
-                        <span class="action-icon">➕</span>
-                        <span class="action-text">New Booking</span>
-                    </button>
-                    <button class="action-btn btn-green">
-                        <span class="action-icon">👨‍💼</span>
-                        <span class="action-text">Add Driver</span>
-                    </button>
-                    <button class="action-btn btn-purple">
-                        <span class="action-icon">📱</span>
-                        <span class="action-text">Send SMS</span>
-                    </button>
-                    <button class="action-btn btn-orange">
-                        <span class="action-icon">📊</span>
-                        <span class="action-text">View Reports</span>
-                    </button>
-                    <button class="action-btn btn-gray">
-                        <span class="action-icon">📤</span>
-                        <span class="action-text">Export Data</span>
-                    </button>
-                </div>
-            </section>
-
-            <!-- Content Grid -->
-            <div class="content-grid">
-                <!-- Recent Bookings Table -->
-                <section class="recent-bookings-section">
-                    <h2 class="section-title">Recent Bookings</h2>
-                    <div class="table-container">
-                        <table class="bookings-table">
-                            <thead>
-                                <tr>
-                                    <th>Booking ID</th>
-                                    <th>Customer</th>
-                                    <th>Driver</th>
-                                    <th>Status</th>
-                                    <th>Amount</th>
-                                    <th>Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#BK001</td>
-                                    <td>John Smith</td>
-                                    <td>Mike Johnson</td>
-                                    <td><span class="status-pill completed">Completed</span></td>
-                                    <td>$24.50</td>
-                                    <td>2 mins ago</td>
-                                </tr>
-                                <tr>
-                                    <td>#BK002</td>
-                                    <td>Sarah Wilson</td>
-                                    <td>David Brown</td>
-                                    <td><span class="status-pill in-progress">In Progress</span></td>
-                                    <td>$18.75</td>
-                                    <td>5 mins ago</td>
-                                </tr>
-                                <tr>
-                                    <td>#BK003</td>
-                                    <td>Robert Davis</td>
-                                    <td>Lisa Garcia</td>
-                                    <td><span class="status-pill pending">Pending</span></td>
-                                    <td>$32.00</td>
-                                    <td>8 mins ago</td>
-                                </tr>
-                                <tr>
-                                    <td>#BK004</td>
-                                    <td>Emily Chen</td>
-                                    <td>Carlos Rodriguez</td>
-                                    <td><span class="status-pill completed">Completed</span></td>
-                                    <td>$15.25</td>
-                                    <td>12 mins ago</td>
-                                </tr>
-                                <tr>
-                                    <td>#BK005</td>
-                                    <td>Michael Taylor</td>
-                                    <td>-</td>
-                                    <td><span class="status-pill cancelled">Cancelled</span></td>
-                                    <td>$0.00</td>
-                                    <td>15 mins ago</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- System Status Panel -->
-                <section class="system-status-section">
-                    <h2 class="section-title">System Status</h2>
-                    <div class="status-container">
-                        <div class="status-item">
-                            <span class="service-name">SMS Service</span>
-                            <div class="status-indicator">
-                                <span class="status-icon online">✓</span>
-                                <span class="status-text">Online</span>
-                            </div>
-                        </div>
-                        <div class="status-item">
-                            <span class="service-name">Payment Gateway</span>
-                            <div class="status-indicator">
-                                <span class="status-icon online">✓</span>
-                                <span class="status-text">Online</span>
-                            </div>
-                        </div>
-                        <div class="status-item">
-                            <span class="service-name">Database</span>
-                            <div class="status-indicator">
-                                <span class="status-icon limited">⚠</span>
-                                <span class="status-text">Limited</span>
-                            </div>
-                        </div>
-                        <div class="status-item">
-                            <span class="service-name">Redis Cache</span>
-                            <div class="status-indicator">
-                                <span class="status-icon online">✓</span>
-                                <span class="status-text">Online</span>
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card dashboard-card border-left-primary h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Bookings
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= analytics.bookingStats.totalBookings %>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-calendar stat-icon text-primary"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card dashboard-card border-left-success h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Total Revenue
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            $<%= analytics.bookingStats.totalRevenue.toFixed(2) %>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign stat-icon text-success"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card dashboard-card border-left-info h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Completion Rate
+                                        </div>
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-auto">
+                                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                                    <%= analytics.bookingStats.completionRate %>%
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="progress progress-sm mr-2">
+                                                    <div class="progress-bar bg-info" role="progressbar" 
+                                                         style="width: <%= analytics.bookingStats.completionRate %>%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-clipboard-list stat-icon text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card dashboard-card border-left-warning h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Active Drivers
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= analytics.driverPerformance.filter(d => d.status === 'available').length %>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-users stat-icon text-warning"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row mb-4">
+                    <!-- Daily Trends Chart -->
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="card dashboard-card">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Daily Booking Trends</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="dailyTrendsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Status Distribution -->
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card dashboard-card">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Booking Status</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Driver Performance and Peak Hours -->
+                <div class="row mb-4">
+                    <!-- Driver Performance -->
+                    <div class="col-xl-6">
+                        <div class="card dashboard-card">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Driver Performance</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Driver</th>
+                                                <th>Status</th>
+                                                <th>Bookings</th>
+                                                <th>Revenue</th>
+                                                <th>Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% analytics.driverPerformance.slice(0, 5).forEach(driver => { %>
+                                            <tr>
+                                                <td><%= driver.name %></td>
+                                                <td>
+                                                    <span class="badge <%= driver.status === 'available' ? 'bg-success' : 'bg-warning' %>">
+                                                        <%= driver.status %>
+                                                    </span>
+                                                </td>
+                                                <td><%= driver.totalBookings %></td>
+                                                <td>$<%= driver.revenue.toFixed(2) %></td>
+                                                <td><%= driver.completionRate %>%</td>
+                                            </tr>
+                                            <% }); %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Peak Hours Chart -->
+                    <div class="col-xl-6">
+                        <div class="card dashboard-card">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Peak Hours</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="peakHoursChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
-</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Analytics data from server
+        const analyticsData = <%- JSON.stringify(analytics) %>;
+
+        // Daily Trends Chart
+        const dailyTrendsCtx = document.getElementById('dailyTrendsChart').getContext('2d');
+        new Chart(dailyTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: analyticsData.dailyTrends.map(d => d.date),
+                datasets: [{
+                    label: 'Bookings',
+                    data: analyticsData.dailyTrends.map(d => d.bookings),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }, {
+                    label: 'Revenue',
+                    data: analyticsData.dailyTrends.map(d => d.revenue),
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.1,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+
+        // Status Distribution Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: analyticsData.statusDistribution.map(s => s.status),
+                datasets: [{
+                    data: analyticsData.statusDistribution.map(s => s.count),
+                    backgroundColor: [
+                        '#4e73df',
+                        '#1cc88a',
+                        '#36b9cc',
+                        '#f6c23e',
+                        '#e74a3b'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Peak Hours Chart
+        const peakHoursCtx = document.getElementById('peakHoursChart').getContext('2d');
+        new Chart(peakHoursCtx, {
+            type: 'bar',
+            data: {
+                labels: analyticsData.peakHours.map(h => h.hour + ':00'),
+                datasets: [{
+                    label: 'Bookings',
+                    data: analyticsData.peakHours.map(h => h.count),
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Utility functions
+        function refreshData() {
+            location.reload();
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
+        // Auto-refresh every 5 minutes
+        setInterval(refreshData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

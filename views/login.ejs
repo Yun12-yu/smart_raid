@@ -1,0 +1,90 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-center">Login to Smart Taxis</h3>
+        </div>
+        <div class="card-body">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label for="username" class="form-label">Username or Email</label>
+              <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+          </form>
+          <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+          <div id="successMessage" class="alert alert-success mt-3" style="display: none;"></div>
+        </div>
+        <div class="card-footer text-center">
+          <small class="text-muted">
+            Demo Credentials:<br>
+            Admin: admin / admin123<br>
+            Driver: driver1 / driver123
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const formData = new FormData(e.target);
+  const loginData = {
+    username: formData.get('username'),
+    password: formData.get('password')
+  };
+  
+  const errorDiv = document.getElementById('errorMessage');
+  const successDiv = document.getElementById('successMessage');
+  
+  try {
+    const response = await fetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(loginData)
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      // Store token in localStorage
+      localStorage.setItem('authToken', result.token);
+      localStorage.setItem('user', JSON.stringify(result.user));
+      
+      successDiv.textContent = 'Login successful! Redirecting...';
+      successDiv.style.display = 'block';
+      errorDiv.style.display = 'none';
+      
+      // Redirect based on role
+      setTimeout(() => {
+        if (result.user.role === 'admin') {
+          window.location.href = '/dashboard';
+        } else {
+          window.location.href = '/missions';
+        }
+      }, 1000);
+    } else {
+      errorDiv.textContent = result.error || 'Login failed';
+      errorDiv.style.display = 'block';
+      successDiv.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    errorDiv.textContent = 'Network error. Please try again.';
+    errorDiv.style.display = 'block';
+    successDiv.style.display = 'none';
+  }
+});
+</script>
