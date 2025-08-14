@@ -158,7 +158,8 @@ app.get('/', async (req, res) => {
     console.error('Error loading homepage:', error);
     res.status(500).render('error', {
       title: 'Server Error',
-      message: 'Unable to load homepage data.'
+      message: 'Unable to load homepage data.',
+      status: 500
     });
   }
 });
@@ -203,7 +204,8 @@ app.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
     console.error('Error loading dashboard:', error);
     res.status(500).render('error', {
       title: 'Server Error',
-      message: 'Unable to load dashboard data.'
+      message: 'Unable to load dashboard data.',
+      status: 500
     });
   }
 });
@@ -357,7 +359,8 @@ app.get('/missions', authenticateToken, async (req, res) => {
     console.error('Error loading missions:', error);
     res.status(500).render('error', {
       title: 'Server Error',
-      message: 'Unable to load missions data.'
+      message: 'Unable to load missions data.',
+      status: 500
     });
   }
 });
@@ -375,7 +378,8 @@ app.get('/drivers', authenticateToken, async (req, res) => {
     console.error('Error loading drivers:', error);
     res.status(500).render('error', {
       title: 'Server Error',
-      message: 'Unable to load drivers data.'
+      message: 'Unable to load drivers data.',
+      status: 500
     });
   }
 });
