@@ -89,7 +89,7 @@ async function getDrivers() {
 async function getBookings(limit = null) {
   if (isDbInitialized) {
     const options = {
-      include: [Driver],
+      include: [{ model: Driver, as: 'driver' }],
       order: [['created_at', 'DESC']]
     };
     if (limit) options.limit = limit;
@@ -103,7 +103,8 @@ async function getMissions() {
     return await Mission.findAll({
       include: [{
         model: Booking,
-        include: [Driver]
+        as: 'booking',
+        include: [{ model: Driver, as: 'driver' }]
       }],
       order: [['created_at', 'DESC']]
     });

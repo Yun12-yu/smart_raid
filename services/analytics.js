@@ -11,7 +11,7 @@ class AnalyticsService {
             [Op.between]: [startDate, endDate]
           }
         },
-        include: [Driver]
+        include: [{ model: Driver, as: 'driver' }]
       });
 
       const totalBookings = bookings.length;

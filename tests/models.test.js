@@ -103,10 +103,10 @@ describe('Database Models', () => {
 
       // Test association
       const bookingWithDriver = await Booking.findByPk(booking.id, {
-        include: [Driver]
+        include: [{ model: Driver, as: 'driver' }]
       });
 
-      expect(bookingWithDriver.Driver.name).toBe('Test Driver');
+      expect(bookingWithDriver.driver.name).toBe('Test Driver');
     });
 
     it('should reject booking with invalid status', async () => {
@@ -166,10 +166,10 @@ describe('Database Models', () => {
       });
 
       const missionWithBooking = await Mission.findByPk(mission.id, {
-        include: [Booking]
+        include: [{ model: Booking, as: 'booking' }]
       });
 
-      expect(missionWithBooking.Booking.customer_name).toBe('Test Customer');
+      expect(missionWithBooking.booking.customer_name).toBe('Test Customer');
     });
 
     it('should reject mission with invalid status', async () => {
@@ -278,10 +278,10 @@ describe('Database Models', () => {
       });
 
       const userWithDriver = await User.findByPk(user.id, {
-        include: [Driver]
+        include: [{ model: Driver, as: 'driver' }]
       });
 
-      expect(userWithDriver.Driver.name).toBe('Test Driver');
+      expect(userWithDriver.driver.name).toBe('Test Driver');
     });
   });
 });
