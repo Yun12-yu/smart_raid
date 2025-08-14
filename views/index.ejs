@@ -1,0 +1,204 @@
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="bi bi-taxi-front"></i> Smart Taxis MVP
+                </h1>
+                <p class="lead mb-4">
+                    Book a taxi instantly with our minimal booking system featuring real-time driver assignment and mission tracking.
+                </p>
+                <a href="/book" class="btn btn-light btn-lg">
+                    <i class="bi bi-plus-circle"></i> Book a Taxi Now
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3 class="text-primary" data-status="availableDrivers"><%= drivers.length %></h3>
+                                <small class="text-muted">Available Drivers</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3 class="text-success" data-status="totalBookings"><%= recentBookings.length %></h3>
+                                <small class="text-muted">Recent Bookings</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3 class="text-warning" data-status="activeMissions">0</h3>
+                                <small class="text-muted">Active Missions</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3 class="text-info" data-status="completedMissions">0</h3>
+                                <small class="text-muted">Completed Today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="row">
+        <!-- Available Drivers -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people"></i> Available Drivers
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% if (drivers.length > 0) { %>
+                        <div class="list-group list-group-flush">
+                            <% drivers.forEach(driver => { %>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1"><%= driver.name %></h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-geo-alt"></i> <%= driver.location %>
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-success status-badge">
+                                            <i class="bi bi-check-circle"></i> Available
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="bi bi-star-fill text-warning"></i> <%= driver.rating %>
+                                        </small>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                            <p class="mt-2 text-muted">No drivers available at the moment</p>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="card-footer">
+                    <a href="/drivers" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-eye"></i> View All Drivers
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> Recent Bookings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% if (recentBookings.length > 0) { %>
+                        <div class="list-group list-group-flush">
+                            <% recentBookings.forEach(booking => { %>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1"><%= booking.passengerName %></h6>
+                                            <p class="mb-1 small">
+                                                <i class="bi bi-geo-alt text-primary"></i> <%= booking.pickup %> 
+                                                <i class="bi bi-arrow-right mx-1"></i> 
+                                                <i class="bi bi-geo-alt-fill text-danger"></i> <%= booking.destination %>
+                                            </p>
+                                            <small class="text-muted">
+                                                <i class="bi bi-person"></i> Driver: <%= booking.driverName %> | 
+                                                <i class="bi bi-currency-dollar"></i> $<%= booking.fare %>
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-primary status-badge">
+                                            <%= booking.status %>
+                                        </span>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted" style="font-size: 2rem;"></i>
+                            <p class="mt-2 text-muted">No recent bookings</p>
+                            <a href="/book" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle"></i> Create First Booking
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="card-footer">
+                    <a href="/missions" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-list-task"></i> View All Missions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightning"></i> Quick Actions
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="/book" class="btn btn-primary w-100">
+                                <i class="bi bi-plus-circle"></i><br>
+                                Book Taxi
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/missions" class="btn btn-info w-100">
+                                <i class="bi bi-list-task"></i><br>
+                                View Missions
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/drivers" class="btn btn-warning w-100">
+                                <i class="bi bi-people"></i><br>
+                                Driver Status
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-secondary w-100" onclick="refreshStatus()">
+                                <i class="bi bi-arrow-clockwise"></i><br>
+                                Refresh Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh page data every 60 seconds
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        location.reload();
+    }
+}, 60000);
+</script>

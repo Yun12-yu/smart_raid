@@ -1,0 +1,325 @@
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold text-primary">
+                <i class="bi bi-people"></i> Driver Management
+            </h1>
+            <p class="lead text-muted">
+                Monitor driver availability, locations, and performance ratings.
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <button class="btn btn-outline-primary" onclick="refreshDrivers()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <a href="/book" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> New Booking
+            </a>
+        </div>
+    </div>
+
+    <!-- Driver Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3><%= drivers.filter(d => d.available).length %></h3>
+                    <small>Available Drivers</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3><%= drivers.filter(d => !d.available).length %></h3>
+                    <small>Busy Drivers</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3><%= drivers.length %></h3>
+                    <small>Total Drivers</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3><%= (drivers.reduce((sum, d) => sum + d.rating, 0) / drivers.length).toFixed(1) %></h3>
+                    <small>Average Rating</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Grid -->
+    <div class="row">
+        <% drivers.forEach(driver => { %>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card driver-card <%= driver.available ? 'border-success' : 'border-warning' %>">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi bi-person-circle"></i> <%= driver.name %>
+                        </h6>
+                        <span class="badge bg-<%= driver.available ? 'success' : 'warning' %> status-badge">
+                            <i class="bi bi-<%= driver.available ? 'check-circle' : 'clock' %>"></i>
+                            <%= driver.available ? 'Available' : 'Busy' %>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-8">
+                                <p class="mb-2">
+                                    <i class="bi bi-geo-alt text-primary"></i> 
+                                    <strong>Location:</strong> <%= driver.location %>
+                                </p>
+                                <p class="mb-2">
+                                    <i class="bi bi-star-fill text-warning"></i> 
+                                    <strong>Rating:</strong> <%= driver.rating %>/5.0
+                                </p>
+                                <p class="mb-2">
+                                    <i class="bi bi-hash text-muted"></i> 
+                                    <strong>ID:</strong> #<%= driver.id %>
+                                </p>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="driver-avatar <%= driver.available ? 'available' : 'busy' %>">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Driver Performance -->
+                        <div class="mt-3">
+                            <h6 class="text-muted mb-2">Performance</h6>
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Trips</small>
+                                    <strong><%= Math.floor(Math.random() * 50) + 10 %></strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Hours</small>
+                                    <strong><%= Math.floor(Math.random() * 8) + 4 %>h</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Earnings</small>
+                                    <strong>$<%= (Math.random() * 200 + 100).toFixed(0) %></strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Rating Stars -->
+                        <div class="mt-3">
+                            <div class="rating-stars">
+                                <% for(let i = 1; i <= 5; i++) { %>
+                                    <i class="bi bi-star<%= i <= Math.floor(driver.rating) ? '-fill' : '' %> text-warning"></i>
+                                <% } %>
+                                <span class="ms-2 small text-muted">(<%= Math.floor(Math.random() * 100) + 20 %> reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <% if (driver.available) { %>
+                                    <button class="btn btn-success btn-sm w-100" onclick="assignDriver(<%= driver.id %>)">
+                                        <i class="bi bi-check-circle"></i> Assign
+                                    </button>
+                                <% } else { %>
+                                    <button class="btn btn-outline-info btn-sm w-100" onclick="trackDriver(<%= driver.id %>)">
+                                        <i class="bi bi-geo-alt"></i> Track
+                                    </button>
+                                <% } %>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-outline-primary btn-sm w-100" onclick="viewDriverDetails(<%= driver.id %>)">
+                                    <i class="bi bi-eye"></i> Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+
+    <!-- Driver Locations Map Placeholder -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-map"></i> Driver Locations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="map-placeholder bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <div class="text-center">
+                            <i class="bi bi-geo-alt text-primary" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3 text-muted">Interactive Map</h5>
+                            <p class="text-muted">Real-time driver locations would be displayed here</p>
+                            <div class="row justify-content-center">
+                                <% drivers.forEach((driver, index) => { %>
+                                    <div class="col-auto mb-2">
+                                        <span class="badge bg-<%= driver.available ? 'success' : 'warning' %> me-1">
+                                            <i class="bi bi-geo-alt"></i> <%= driver.name %> - <%= driver.location %>
+                                        </span>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Performance Summary -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart"></i> Performance Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th><i class="bi bi-person"></i> Driver</th>
+                                    <th><i class="bi bi-geo-alt"></i> Location</th>
+                                    <th><i class="bi bi-star"></i> Rating</th>
+                                    <th><i class="bi bi-clock"></i> Status</th>
+                                    <th><i class="bi bi-list-task"></i> Today's Trips</th>
+                                    <th><i class="bi bi-currency-dollar"></i> Earnings</th>
+                                    <th><i class="bi bi-speedometer2"></i> Avg. Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% drivers.forEach(driver => { %>
+                                    <tr class="<%= driver.available ? '' : 'table-warning' %>">
+                                        <td>
+                                            <strong><%= driver.name %></strong>
+                                            <br><small class="text-muted">#<%= driver.id %></small>
+                                        </td>
+                                        <td><%= driver.location %></td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-star-fill"></i> <%= driver.rating %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-<%= driver.available ? 'success' : 'warning' %>">
+                                                <%= driver.available ? 'Available' : 'On Trip' %>
+                                            </span>
+                                        </td>
+                                        <td><%= Math.floor(Math.random() * 8) + 2 %></td>
+                                        <td>$<%= (Math.random() * 150 + 80).toFixed(0) %></td>
+                                        <td><%= Math.floor(Math.random() * 10) + 15 %> min</td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.driver-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.driver-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.driver-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto;
+    transition: all 0.3s;
+}
+
+.driver-avatar.available {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+}
+
+.driver-avatar.busy {
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+    color: #333;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.rating-stars {
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+}
+
+.map-placeholder {
+    border: 2px dashed #dee2e6;
+}
+</style>
+
+<script>
+// Refresh drivers data
+function refreshDrivers() {
+    location.reload();
+}
+
+// Assign driver to new booking
+function assignDriver(driverId) {
+    if (confirm('Redirect to booking page to assign this driver?')) {
+        window.location.href = '/book';
+    }
+}
+
+// Track driver location
+function trackDriver(driverId) {
+    alert(`Tracking driver #${driverId}\n\nThis would show real-time location and current mission status in a production app.`);
+}
+
+// View driver details
+function viewDriverDetails(driverId) {
+    const driver = <%= JSON.stringify(drivers) %>.find(d => d.id === driverId);
+    if (driver) {
+        alert(`Driver Details:\n\nName: ${driver.name}\nLocation: ${driver.location}\nRating: ${driver.rating}/5.0\nStatus: ${driver.available ? 'Available' : 'Busy'}\nID: #${driver.id}`);
+    }
+}
+
+// Auto-refresh every 45 seconds
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        refreshDrivers();
+    }
+}, 45000);
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any initialization code here
+    console.log('Driver management page loaded');
+});
+</script>

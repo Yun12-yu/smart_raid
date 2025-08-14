@@ -1,0 +1,28 @@
+{
+  "name": "smart-taxis-mvp",
+  "version": "1.0.0",
+  "description": "Minimal taxi booking system with driver assignment and mission management",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "lint": "eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["taxi", "booking", "mvp", "nodejs", "express"],
+  "author": "Smart Taxis Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "ejs": "^3.1.9",
+    "body-parser": "^1.20.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "eslint": "^8.50.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

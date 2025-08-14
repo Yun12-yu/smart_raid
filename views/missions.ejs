@@ -1,0 +1,363 @@
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold text-primary">
+                <i class="bi bi-list-task"></i> Mission Control
+            </h1>
+            <p class="lead text-muted">
+                Monitor active missions and view completed trips in real-time.
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <button class="btn btn-outline-primary" onclick="refreshMissions()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <a href="/book" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> New Booking
+            </a>
+        </div>
+    </div>
+
+    <!-- Mission Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3 data-status="activeMissions"><%= missions.length %></h3>
+                    <small>Active Missions</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 data-status="completedMissions"><%= completedMissions.length %></h3>
+                    <small>Completed Today</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 data-status="availableDrivers">-</h3>
+                    <small>Available Drivers</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 data-status="totalBookings">-</h3>
+                    <small>Total Bookings</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Missions -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock"></i> Active Missions (<%= missions.length %>)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% if (missions.length > 0) { %>
+                        <div class="row" id="activeMissions">
+                            <% missions.forEach(mission => { %>
+                                <div class="col-lg-6 mb-3">
+                                    <div class="card border-warning mission-card" data-mission-id="<%= mission.id %>">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">
+                                                <i class="bi bi-person"></i> <%= mission.passengerName %>
+                                            </h6>
+                                            <span class="badge bg-<%= getStatusColor(mission.status) %> status-badge">
+                                                <%= formatStatus(mission.status) %>
+                                            </span>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-8">
+                                                    <p class="mb-2">
+                                                        <i class="bi bi-geo-alt text-primary"></i> 
+                                                        <strong>From:</strong> <%= mission.pickup %>
+                                                    </p>
+                                                    <p class="mb-2">
+                                                        <i class="bi bi-geo-alt-fill text-danger"></i> 
+                                                        <strong>To:</strong> <%= mission.destination %>
+                                                    </p>
+                                                    <p class="mb-2">
+                                                        <i class="bi bi-person-badge text-info"></i> 
+                                                        <strong>Driver:</strong> <%= mission.driverName %>
+                                                    </p>
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-clock"></i> 
+                                                        Started: <%= mission.createdAt.toLocaleTimeString() %>
+                                                    </small>
+                                                </div>
+                                                <div class="col-4 text-center">
+                                                    <div class="mission-progress">
+                                                        <div class="progress-circle" data-status="<%= mission.status %>">
+                                                            <i class="bi bi-taxi-front"></i>
+                                                        </div>
+                                                        <small class="d-block mt-2 text-muted mission-time" data-start="<%= mission.createdAt.getTime() %>"></small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <button class="btn btn-sm btn-outline-info" onclick="trackMission('<%= mission.id %>')">
+                                                <i class="bi bi-eye"></i> Track
+                                            </button>
+                                            <small class="text-muted float-end">
+                                                ID: <%= mission.id.substring(0, 8) %>...
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3 text-muted">No Active Missions</h5>
+                            <p class="text-muted">All drivers are currently available for new bookings.</p>
+                            <a href="/book" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create New Booking
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Missions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-check-circle"></i> Recently Completed (<%= completedMissions.length %>)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% if (completedMissions.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th><i class="bi bi-person"></i> Passenger</th>
+                                        <th><i class="bi bi-route"></i> Route</th>
+                                        <th><i class="bi bi-person-badge"></i> Driver</th>
+                                        <th><i class="bi bi-clock"></i> Completed</th>
+                                        <th><i class="bi bi-speedometer2"></i> Duration</th>
+                                        <th><i class="bi bi-check"></i> Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% completedMissions.forEach(mission => { %>
+                                        <tr>
+                                            <td>
+                                                <strong><%= mission.passengerName %></strong>
+                                            </td>
+                                            <td>
+                                                <small>
+                                                    <%= mission.pickup %> 
+                                                    <i class="bi bi-arrow-right mx-1"></i> 
+                                                    <%= mission.destination %>
+                                                </small>
+                                            </td>
+                                            <td><%= mission.driverName %></td>
+                                            <td>
+                                                <small><%= mission.updatedAt.toLocaleTimeString() %></small>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    <%= Math.round((mission.updatedAt - mission.createdAt) / 60000) %> min
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> Completed
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="bi bi-clock-history text-muted" style="font-size: 2rem;"></i>
+                            <p class="mt-2 text-muted">No completed missions yet today</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.mission-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mission-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.progress-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto;
+    transition: all 0.3s;
+}
+
+.progress-circle[data-status="assigned"] {
+    background: linear-gradient(45deg, #ffc107, #ffeb3b);
+    color: #333;
+}
+
+.progress-circle[data-status="en_route_pickup"] {
+    background: linear-gradient(45deg, #17a2b8, #20c997);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.progress-circle[data-status="arrived_pickup"] {
+    background: linear-gradient(45deg, #fd7e14, #ffc107);
+    color: white;
+}
+
+.progress-circle[data-status="passenger_onboard"] {
+    background: linear-gradient(45deg, #6f42c1, #e83e8c);
+    color: white;
+}
+
+.progress-circle[data-status="en_route_destination"] {
+    background: linear-gradient(45deg, #007bff, #6610f2);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.status-badge {
+    font-size: 0.75rem;
+}
+</style>
+
+<script>
+// Helper functions for EJS
+function getStatusColor(status) {
+    const colors = {
+        'assigned': 'warning',
+        'en_route_pickup': 'info',
+        'arrived_pickup': 'primary',
+        'passenger_onboard': 'secondary',
+        'en_route_destination': 'primary',
+        'completed': 'success'
+    };
+    return colors[status] || 'secondary';
+}
+
+function formatStatus(status) {
+    const formats = {
+        'assigned': 'Assigned',
+        'en_route_pickup': 'En Route to Pickup',
+        'arrived_pickup': 'Arrived at Pickup',
+        'passenger_onboard': 'Passenger Onboard',
+        'en_route_destination': 'En Route to Destination',
+        'completed': 'Completed'
+    };
+    return formats[status] || status;
+}
+
+// Update mission times
+function updateMissionTimes() {
+    const timeElements = document.querySelectorAll('.mission-time');
+    timeElements.forEach(el => {
+        const startTime = parseInt(el.getAttribute('data-start'));
+        const now = Date.now();
+        const elapsed = Math.floor((now - startTime) / 60000);
+        el.textContent = `${elapsed} min`;
+    });
+}
+
+// Refresh missions
+function refreshMissions() {
+    location.reload();
+}
+
+// Track specific mission
+function trackMission(missionId) {
+    fetch(`/api/missions/${missionId}`)
+        .then(response => response.json())
+        .then(mission => {
+            alert(`Mission Status: ${formatStatus(mission.status)}\nLast Updated: ${new Date(mission.updatedAt).toLocaleString()}`);
+        })
+        .catch(error => {
+            alert('Unable to fetch mission details');
+        });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Update times every minute
+    updateMissionTimes();
+    setInterval(updateMissionTimes, 60000);
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        if (document.visibilityState === 'visible') {
+            refreshMissions();
+        }
+    }, 30000);
+});
+
+// Make helper functions available globally for EJS
+window.getStatusColor = getStatusColor;
+window.formatStatus = formatStatus;
+</script>
+
+<%
+// Helper functions for EJS templates
+function getStatusColor(status) {
+    const colors = {
+        'assigned': 'warning',
+        'en_route_pickup': 'info',
+        'arrived_pickup': 'primary',
+        'passenger_onboard': 'secondary',
+        'en_route_destination': 'primary',
+        'completed': 'success'
+    };
+    return colors[status] || 'secondary';
+}
+
+function formatStatus(status) {
+    const formats = {
+        'assigned': 'Assigned',
+        'en_route_pickup': 'En Route to Pickup',
+        'arrived_pickup': 'Arrived at Pickup',
+        'passenger_onboard': 'Passenger Onboard',
+        'en_route_destination': 'En Route to Destination',
+        'completed': 'Completed'
+    };
+    return formats[status] || status;
+}
+%>

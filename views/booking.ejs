@@ -1,0 +1,230 @@
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Page Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold text-primary">
+                    <i class="bi bi-plus-circle"></i> Book a Taxi
+                </h1>
+                <p class="lead text-muted">
+                    Fill out the form below to book your taxi. We'll assign the nearest available driver.
+                </p>
+            </div>
+
+            <!-- Error Alert -->
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Booking Failed:</strong> <%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <!-- Booking Form -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-form"></i> Booking Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form action="/book" method="POST" id="bookingForm">
+                        <div class="row">
+                            <!-- Pickup Location -->
+                            <div class="col-md-6 mb-3">
+                                <label for="pickup" class="form-label">
+                                    <i class="bi bi-geo-alt text-primary"></i> Pickup Location *
+                                </label>
+                                <select class="form-select" id="pickup" name="pickup" required>
+                                    <option value="">Select pickup location...</option>
+                                    <option value="Downtown">Downtown</option>
+                                    <option value="Airport">Airport</option>
+                                    <option value="Mall">Shopping Mall</option>
+                                    <option value="University">University</option>
+                                    <option value="Hospital">Hospital</option>
+                                    <option value="Train Station">Train Station</option>
+                                    <option value="Business District">Business District</option>
+                                    <option value="Residential Area">Residential Area</option>
+                                </select>
+                            </div>
+
+                            <!-- Destination -->
+                            <div class="col-md-6 mb-3">
+                                <label for="destination" class="form-label">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i> Destination *
+                                </label>
+                                <select class="form-select" id="destination" name="destination" required>
+                                    <option value="">Select destination...</option>
+                                    <option value="Downtown">Downtown</option>
+                                    <option value="Airport">Airport</option>
+                                    <option value="Mall">Shopping Mall</option>
+                                    <option value="University">University</option>
+                                    <option value="Hospital">Hospital</option>
+                                    <option value="Train Station">Train Station</option>
+                                    <option value="Business District">Business District</option>
+                                    <option value="Residential Area">Residential Area</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Passenger Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="passengerName" class="form-label">
+                                    <i class="bi bi-person text-info"></i> Passenger Name *
+                                </label>
+                                <input type="text" class="form-control" id="passengerName" name="passengerName" 
+                                       placeholder="Enter your full name" required>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="col-md-6 mb-3">
+                                <label for="passengerPhone" class="form-label">
+                                    <i class="bi bi-telephone text-success"></i> Phone Number *
+                                </label>
+                                <input type="tel" class="form-control" id="passengerPhone" name="passengerPhone" 
+                                       placeholder="+1 (555) 123-4567" required>
+                            </div>
+                        </div>
+
+                        <!-- Fare Estimate -->
+                        <div class="alert alert-info" id="fareEstimate" style="display: none;">
+                            <h6><i class="bi bi-calculator"></i> Estimated Fare</h6>
+                            <p class="mb-0" id="fareDetails">Select pickup and destination to see fare estimate</p>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/" class="btn btn-outline-secondary me-md-2">
+                                <i class="bi bi-arrow-left"></i> Back to Home
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="bi bi-check-circle"></i> Book Taxi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Cards -->
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card border-primary">
+                        <div class="card-body text-center">
+                            <i class="bi bi-clock text-primary" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Quick Response</h6>
+                            <small class="text-muted">Average pickup time: 5-10 minutes</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <i class="bi bi-shield-check text-success" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Safe & Reliable</h6>
+                            <small class="text-muted">All drivers are verified and rated</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card border-info">
+                        <div class="card-body text-center">
+                            <i class="bi bi-geo text-info" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Real-time Tracking</h6>
+                            <small class="text-muted">Track your ride from pickup to destination</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation and fare estimation
+document.addEventListener('DOMContentLoaded', function() {
+    const pickupSelect = document.getElementById('pickup');
+    const destinationSelect = document.getElementById('destination');
+    const fareEstimate = document.getElementById('fareEstimate');
+    const fareDetails = document.getElementById('fareDetails');
+    const form = document.getElementById('bookingForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Fare calculation (dummy)
+    function calculateFare(pickup, destination) {
+        if (!pickup || !destination || pickup === destination) {
+            return null;
+        }
+        
+        const baseRate = 5.00;
+        const perKmRate = 2.50;
+        const estimatedDistance = Math.random() * 20 + 2; // 2-22 km
+        const fare = baseRate + (estimatedDistance * perKmRate);
+        
+        return {
+            fare: fare.toFixed(2),
+            distance: estimatedDistance.toFixed(1)
+        };
+    }
+
+    // Update fare estimate
+    function updateFareEstimate() {
+        const pickup = pickupSelect.value;
+        const destination = destinationSelect.value;
+        
+        if (pickup && destination) {
+            if (pickup === destination) {
+                fareEstimate.style.display = 'block';
+                fareEstimate.className = 'alert alert-warning';
+                fareDetails.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Pickup and destination cannot be the same';
+                return;
+            }
+            
+            const estimate = calculateFare(pickup, destination);
+            if (estimate) {
+                fareEstimate.style.display = 'block';
+                fareEstimate.className = 'alert alert-info';
+                fareDetails.innerHTML = `
+                    <strong>$${estimate.fare}</strong> 
+                    <small class="text-muted">(~${estimate.distance} km)</small><br>
+                    <small>Base rate: $5.00 + $2.50/km</small>
+                `;
+            }
+        } else {
+            fareEstimate.style.display = 'none';
+        }
+    }
+
+    // Event listeners
+    pickupSelect.addEventListener('change', updateFareEstimate);
+    destinationSelect.addEventListener('change', updateFareEstimate);
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        const pickup = pickupSelect.value;
+        const destination = destinationSelect.value;
+        
+        if (pickup === destination) {
+            e.preventDefault();
+            alert('Pickup and destination cannot be the same!');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Booking...';
+        submitBtn.disabled = true;
+    });
+
+    // Phone number formatting
+    const phoneInput = document.getElementById('passengerPhone');
+    phoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 6) {
+            value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        } else if (value.length >= 3) {
+            value = value.replace(/(\d{3})(\d{0,3})/, '($1) $2');
+        }
+        e.target.value = value;
+    });
+});
+</script>
